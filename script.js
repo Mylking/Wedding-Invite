@@ -44,8 +44,9 @@ function openCurtain() {
   if (curtainOpened) return;
   curtainOpened = true;
 
-  startMusic();
-  musicBtn.classList.add('show');
+  // Prime audio on user gesture
+  const _primer = document.getElementById('bg-music');
+  if (_primer) _primer.play().then(() => _primer.pause()).catch(() => {});
 
   const panelW  = leftPanel.getBoundingClientRect().width;
   // slideBy = full panel width + a little extra so panels go completely off screen
@@ -257,8 +258,9 @@ function startFadeIns() {
   }, 300);
 
   setTimeout(() => {
+    startMusic();
     musicBtn.classList.add('show');
-  }, 400);
+  }, 1200);
 
   const items = document.querySelectorAll('.fade-item');
   const delay = 700;
@@ -881,20 +883,22 @@ let musicPlaying = false;
 bgMusic.volume = 0.35;
 
 function startMusic() {
-  if (musicPlaying) return;
   bgMusic.volume = 0.35;
-  bgMusic.play().then(() => {
-    musicPlaying = true;
-    musicBtn.classList.add('playing');
-  }).catch(() => {
-    // Retry once on failure (handles slow mobile connections)
-    setTimeout(() => {
-      bgMusic.play().then(() => {
-        musicPlaying = true;
-        musicBtn.classList.add('playing');
-      }).catch(() => {});
-    }, 500);
-  });
+  const p = bgMusic.play();
+  if (p !== undefined) {
+    p.then(() => {
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+    }).catch(() => {
+      document.addEventListener('click', function resumeAudio() {
+        bgMusic.play().then(() => {
+          musicPlaying = true;
+          musicBtn.classList.add('playing');
+        }).catch(() => {});
+        document.removeEventListener('click', resumeAudio);
+      }, { once: true });
+    });
+  }
 }
 
 function toggleMusic() {
@@ -914,19 +918,12 @@ function toggleMusic() {
 musicBtn.addEventListener('click', toggleMusic);
 
 // Pause music when user leaves or hides the page
-let wasPlayingBeforeHide = false;
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    wasPlayingBeforeHide = musicPlaying;
-    if (musicPlaying) {
-      bgMusic.pause();
-      musicBtn.classList.remove('playing');
-    }
-  } else {
-    if (wasPlayingBeforeHide) {
-      bgMusic.play().catch(() => {});
-      musicBtn.classList.add('playing');
-    }
+  if (document.hidden && musicPlaying) {
+    bgMusic.pause();
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+    musicIcon.textContent = '♪';
   }
 });
 
