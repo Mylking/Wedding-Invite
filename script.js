@@ -917,14 +917,16 @@ function toggleMusic() {
 musicBtn.addEventListener('click', toggleMusic);
 
 // Pause music when user leaves or hides the page
+let wasPlayingBeforeHide = false;
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
+    wasPlayingBeforeHide = musicPlaying;
     if (musicPlaying) {
       bgMusic.pause();
       musicBtn.classList.remove('playing');
     }
   } else {
-    if (musicPlaying) {
+    if (wasPlayingBeforeHide) {
       bgMusic.play().catch(() => {});
       musicBtn.classList.add('playing');
     }
