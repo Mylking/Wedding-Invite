@@ -44,6 +44,9 @@ function openCurtain() {
   if (curtainOpened) return;
   curtainOpened = true;
 
+  startMusic();
+  musicBtn.classList.add('show');
+
   const panelW  = leftPanel.getBoundingClientRect().width;
   // slideBy = full panel width + a little extra so panels go completely off screen
   const slideBy = panelW + 20;
@@ -254,7 +257,6 @@ function startFadeIns() {
   }, 300);
 
   setTimeout(() => {
-    startMusic();
     musicBtn.classList.add('show');
   }, 400);
 
@@ -895,12 +897,7 @@ bgMusic.play().then(() => {
   musicPlaying = true;
   musicBtn.classList.add('show', 'playing');
 }).catch(() => {
-  // Autoplay blocked — start on first user gesture (curtain tap/click)
-  curtainEl.addEventListener('pointerdown', function playOnGesture() {
-    startMusic();
-    musicBtn.classList.add('show');
-    curtainEl.removeEventListener('pointerdown', playOnGesture);
-  }, { once: true });
+  // Autoplay blocked — will start on first curtain interaction
 });
 
 function toggleMusic() {
