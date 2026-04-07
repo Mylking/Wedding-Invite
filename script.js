@@ -883,11 +883,18 @@ bgMusic.volume = 0.35;
 function startMusic() {
   if (musicPlaying) return;
   bgMusic.volume = 0.35;
-  bgMusic.load();
   bgMusic.play().then(() => {
     musicPlaying = true;
     musicBtn.classList.add('playing');
-  }).catch(() => {});
+  }).catch(() => {
+    // Retry once on failure (handles slow mobile connections)
+    setTimeout(() => {
+      bgMusic.play().then(() => {
+        musicPlaying = true;
+        musicBtn.classList.add('playing');
+      }).catch(() => {});
+    }, 500);
+  });
 }
 
 function toggleMusic() {
