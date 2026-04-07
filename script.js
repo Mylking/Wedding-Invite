@@ -883,22 +883,12 @@ bgMusic.volume = 0.35;
 function startMusic() {
   if (musicPlaying) return;
   bgMusic.volume = 0.35;
-  const p = bgMusic.play();
-  if (p !== undefined) {
-    p.then(() => {
-      musicPlaying = true;
-      musicBtn.classList.add('playing');
-    }).catch(() => {});
-  }
+  bgMusic.load();
+  bgMusic.play().then(() => {
+    musicPlaying = true;
+    musicBtn.classList.add('playing');
+  }).catch(() => {});
 }
-
-// Try autoplay immediately on page load
-bgMusic.play().then(() => {
-  musicPlaying = true;
-  musicBtn.classList.add('show', 'playing');
-}).catch(() => {
-  // Autoplay blocked — will start on first curtain interaction
-});
 
 function toggleMusic() {
   if (musicPlaying) {
